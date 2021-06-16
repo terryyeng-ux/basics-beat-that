@@ -1,32 +1,28 @@
-// Determine the different game modes first
-var DICE_ROLL = "DICE_ROLL";
-var DICE_ORDER = "DICE_ORDER";
-var WINNER = "CHECK_WINNER";
+//players will take turns to first roll the dice and move on to choose the dice order
+var DICE_ROLL_GAME_MODE = "DICE_ROLL_GAME_MODE";
+var DICE_ORDER_GAME_MODE = "DICE_ORDER_GAME_MODE";
 
-// Game will first be dice roll before moving onto dice order
-var currentGameMode = DICE_ROLL;
+//players will start with dice roll game mode first hence it will be our current game mode
+var currentGameMode = DICE_ROLL_GAME_MODE;
 
-// Player 1 starts first before player 2 will play
+// player 1 will start first
 var currentPlayer = 1;
 
-// After player rolls the dice, we will have to log down their respective rolls in array form
+// set an array for respective players to track their dice rolls
 var player1DiceRolls = [];
 var player2DiceRolls = [];
 
-// After rolling, they will select their dice order and we will keep track of their dice orders
-var player1DiceOrder;
-var player2DiceOrder;
+var player1DiceOrder = [];
+var player2DiceOrder = [];
 
+// random dice generator
 var diceRoll = function () {
-  var randomDecimal = Math.random() * 6;
-  var randomInteger = Math.floor(randomDecimal);
-  var diceNumber = randomInteger;
-  return diceNumber;
+  return Math.ceil(Math.random() * 6);
 };
 
+// function to store dice rolls into player dice rolls array
 var diceRolls = function () {
   var randomDiceRolls = [diceRoll(), diceRoll()];
-
   if (currentPlayer == 1) {
     player1DiceRolls = randomDiceRolls;
   } else {
@@ -35,74 +31,62 @@ var diceRolls = function () {
   return randomDiceRolls;
 };
 
-var main = function (input) {
-  var beatThatWinner;
-
-  if (currentGameMode == DICE_ROLL) {
-    var randomDiceRolls = diceRolls();
-
-    currentGameMode = DICE_ORDER;
-
-    return (
-      "Hi Player " +
-      currentPlayer +
-      ". You rolled Dice 1: " +
-      randomDiceRolls[0] +
-      " and Dice 2: " +
-      randomDiceRolls[1] +
-      ". Choose the order of the dice numbers by entering into the input box!"
-    );
-  }
-
-  if (currentGameMode == DICE_ORDER) {
-    player1DiceOrder = input;
-    console.log(player1DiceOrder);
-
-    if (currentPlayer == 1) {
-      currentPlayer = 2;
-      currentGameMode = DICE_ROLL;
-      return (
-        "Hi Player " +
-        currentPlayer +
-        "! Please press submit to roll your dice!"
-      );
-    }
-
-    if (currentGameMode == DICE_ROLL) {
-      var randomDiceRolls = diceRolls();
-
-      currentGameMode = DICE_ORDER;
-
-      return (
-        "Hi Player " +
-        currentPlayer +
-        ". You rolled Dice 1: " +
-        randomDiceRolls[0] +
-        " and Dice 2: " +
-        randomDiceRolls[1] +
-        ". Choose the order of the dice numbers by entering into the input box!"
-      );
-    }
-    if (currentGameMode == DICE_ORDER) {
-      player2DiceOrder = input;
-      currentGameMode = WINNER;
-      console.log(player2DiceOrder);
-    } else if (currentGameMode == WINNER) {
-      var beatThatWinner = checkWinner();
-      console.log(beatThatWinner);
-      if (beatThatWinner == "Player1") {
-        return "Player 1 wins!";
-      } else {
-        return "Player 2 wins!";
-      }
-    }
-  }
-};
-
 var checkWinner = function (player1DiceOrder, player2DiceOrder) {
-  if (player1DiceOrder > player2DiceOrder) {
+  if (Number(player1DiceOrder) > Number(player2DiceOrder)) {
     return "Player1";
   } else {
     return "Player2";
   }
+};
+
+var main = function (input) {
+  if (currentGameMode == DICE_ROLL_GAME_MODE) {
+    var randomDiceRolls = diceRolls();
+    currentGameMode = DICE_ORDER_GAME_MODE;
+    return (
+      "Hi Player " +
+      currentPlayer +
+      "! You rolled " +
+      randomDiceRolls[0] +
+      " for your 1st dice roll and " +
+      randomDiceRolls[1] +
+      " for your 2nd dice roll! Please input your preferred order of your dice rolls!"
+    );
+  }
+  if (currentGameMode == DICE_ORDER_GAME_MODE) {
+    if (currentPlayer == 1) {
+      currentPlayer = 2;
+      currentGameMode = DICE_ROLL_GAME_MODE;
+      return (
+        "Hi Player " +
+        currentPlayer +
+        "! Please press submit for your dice roll"
+      );
+    }
+  }
+  if (currentGameMode == DICE_ROLL_GAME_MODE && currentPlayer == 2) {
+    var randomDiceRolls = diceRolls();
+    return (
+      "Hi Player " +
+      currentPlayer +
+      "! You rolled " +
+      randomDiceRolls[0] +
+      " for your 1st dice roll and " +
+      randomDiceRolls[1] +
+      " for your 2nd dice roll! Please input your preferred order of dice rolls!"
+    );
+  }
+
+  var winningPlayer = checkWinner(player1DiceOrder, player2DiceOrder);
+
+  if (currentPlayer == 1) {
+    player1DiceOrder = player1DiceOrder.push(input);
+    console.log(player1DiceOrder);
+  }
+  if (currentPlayer == 2) {
+    player2DiceOrder = player2DiceOrder.push(input);
+    console.log(player2DiceOrder);
+  }
+  console.log(winningPlayer);
+  return winningPlayer;
 };
